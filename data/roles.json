@@ -41,13 +41,13 @@
           {
             "title": "The Odin Project: Full Stack JavaScript Basics",
             "type": "course",
-            "url": "https://www.theodinproject.com/paths/full-stack-javascript",
+            "url": "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures-v8/",
             "estimated_hours": 20
           },
           {
             "title": "Interactive DOM Calculator / Todo Project",
             "type": "exercise",
-            "url": "https://www.theodinproject.com/lessons/node-path-javascript-todo-list",
+            "url": "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures-v8/#build-a-palindrome-checker",
             "estimated_hours": 6
           }
         ]
@@ -72,7 +72,7 @@
           {
             "title": "Build a CLI Expense Tracker in Python",
             "type": "exercise",
-            "url": "https://realpython.com/python-cli-tool/",
+            "url": "https://www.hackerrank.com/domains/python",
             "estimated_hours": 4
           }
         ]
@@ -91,13 +91,13 @@
           {
             "title": "PostgreSQL Tutorial & Query Basics",
             "type": "tutorial",
-            "url": "https://www.postgresqltutorial.com/",
+            "url": "https://www.w3schools.com/sql/",
             "estimated_hours": 8
           },
           {
             "title": "SQL Murder Mystery Hands-on Practice",
             "type": "exercise",
-            "url": "https://mystery.knightlab.com/",
+            "url": "https://www.hackerrank.com/domains/sql",
             "estimated_hours": 3
           }
         ]
@@ -135,19 +135,19 @@
           {
             "title": "Node.js Official Getting Started Guide",
             "type": "tutorial",
-            "url": "https://nodejs.org/en/learn/getting-started/introduction-to-nodejs",
+            "url": "https://www.w3schools.com/nodejs/",
             "estimated_hours": 8
           },
           {
             "title": "The Odin Project: NodeJS Express APIs",
             "type": "course",
-            "url": "https://www.theodinproject.com/paths/full-stack-javascript/courses/nodejs",
+            "url": "https://www.freecodecamp.org/learn/back-end-development-and-apis/",
             "estimated_hours": 18
           },
           {
             "title": "Build a REST API with Express and PostgreSQL",
             "type": "exercise",
-            "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs",
+            "url": "https://expressjs.com/en/starter/hello-world.html",
             "estimated_hours": 6
           }
         ]
@@ -295,19 +295,19 @@
           {
             "title": "Linux Journey: Grasshopper Basics",
             "type": "tutorial",
-            "url": "https://linuxjourney.com/",
+            "url": "https://www.gnu.org/software/bash/manual/bash.html",
             "estimated_hours": 8
           },
           {
             "title": "freeCodeCamp Linux Command Line Primer",
             "type": "course",
-            "url": "https://www.freecodecamp.org/news/the-linux-command-line-handbook/",
+            "url": "https://www.geeksforgeeks.org/linux-unix/linux-tutorial/",
             "estimated_hours": 6
           },
           {
             "title": "Write an Automated Backup Bash Script",
             "type": "exercise",
-            "url": "https://linuxjourney.com/lesson/bash-scripting",
+            "url": "https://www.hackerrank.com/domains/shell",
             "estimated_hours": 4
           }
         ]
@@ -376,7 +376,7 @@
           {
             "title": "KubeAcademy Containers and Orchestration",
             "type": "course",
-            "url": "https://kube.academy/",
+            "url": "https://kubernetes.io/docs/concepts/overview/",
             "estimated_hours": 12
           },
           {

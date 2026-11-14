@@ -50,3 +50,51 @@ class BaseAgent:
             except Exception:
                 pass
             return fallback_text
+
+    def call_llm_with_system(
+        self,
+        system_instruction: str,
+        prompt: str,
+        model_name: str = "gemini-2.5-flash",
+        max_output_tokens: int = 256,
+    ) -> Optional[str]:
+        """Call Gemini with bounded output, returning None when offline or unavailable."""
+        api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+        if not api_key or api_key == "your_gemini_api_key_here":
+            return None
+
+        try:
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    max_output_tokens=max_output_tokens,
+                ),
+            )
+            if response and getattr(response, "text", None):
+                return response.text.strip()
+        except Exception:
+            pass
+
+        try:
+            import google.generativeai as legacy_genai
+
+            legacy_genai.configure(api_key=api_key)
+            model = legacy_genai.GenerativeModel(
+                model_name,
+                system_instruction=system_instruction,
+            )
+            response = model.generate_content(
+                prompt,
+                generation_config={"max_output_tokens": max_output_tokens},
+            )
+            if response and getattr(response, "text", None):
+                return response.text.strip()
+        except Exception:
+            pass
+        return None

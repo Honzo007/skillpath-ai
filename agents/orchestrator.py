@@ -87,15 +87,19 @@ class Orchestrator:
             score = ass_res["score"]
             completed_skills = set(existing_progress.get("completed", []))
             status_map = dict(existing_progress.get("status_map", {}))
+            revision_skills = set(existing_progress.get("revision_skills", []))
 
             # 2. Conditional Curriculum Planning
             rebuild_needed = False
-            if score >= 80:
+            if score >= 60:
                 completed_skills.add(skill)
+                revision_skills.discard(skill)
                 status_map[skill] = "done"
                 rebuild_needed = True
                 new_logs.append(f"CurriculumPlanner: Mastered '{skill}' (score {score}%). Unlocking subsequent prerequisite steps.")
             elif score < 60:
+                completed_skills.discard(skill)
+                revision_skills.add(skill)
                 status_map[skill] = "in_progress"
                 new_logs.append(f"CurriculumPlanner: Score {score}% on '{skill}' < 60%. Injecting revision resources and diagnostic review.")
                 rebuild_needed = True
@@ -104,7 +108,8 @@ class Orchestrator:
 
             updated_progress = {
                 "completed": list(completed_skills),
-                "status_map": status_map
+                "status_map": status_map,
+                "revision_skills": list(revision_skills)
             }
 
             # Re-run career match & curriculum planner

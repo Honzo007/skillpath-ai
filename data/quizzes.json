@@ -32,6 +32,13 @@
       ],
       "correct_answer": "Includes padding and border in the element's total width and height",
       "explanation": "With border-box, the width and height properties include content, padding, and border."
+      },
+      {
+        "id": "html_5",
+        "question": "A fixed-width card overflows its layout after padding is added. Which change keeps the padding inside the declared width?",
+        "options": ["Set box-sizing: border-box", "Set margin: 0", "Use display: inline", "Set position: relative"],
+        "correct_answer": "Set box-sizing: border-box",
+        "explanation": "With border-box, padding and borders are included in the declared width, preventing the card from growing beyond it."
     }
   ],
   "JavaScript": [
@@ -67,6 +74,13 @@
       "options": ["Generators only", "Promises", "Callbacks only", "Web Workers"],
       "correct_answer": "Promises",
       "explanation": "async/await is syntactic sugar built directly on top of JavaScript Promises."
+      },
+      {
+        "id": "js_5",
+        "question": "A list receives new rows after each fetch, and each row has a delete button. Where should one click listener be attached so newly added buttons also work?",
+        "options": ["Attach a delegated listener to the list and inspect event.target", "Attach a listener to each button only when the page loads", "Poll every button with setInterval", "Add an inline handler only to the first row"],
+        "correct_answer": "Attach a delegated listener to the list and inspect event.target",
+        "explanation": "Event delegation lets a parent handle bubbled clicks from both existing and future child buttons."
     }
   ],
   "React": [
@@ -112,6 +126,13 @@
       ],
       "correct_answer": "To pass data through the component tree without having to pass props down manually at every level",
       "explanation": "Context avoids prop drilling by providing a way to share values like user auth or themes globally."
+      },
+      {
+        "id": "react_5",
+        "question": "A user rapidly adds several items, but the final React list sometimes misses an item. Which update avoids relying on a stale items value?",
+        "options": ["setItems(currentItems => [...currentItems, newItem])", "items.push(newItem); setItems(items)", "setItems(items + newItem)", "Mutate the DOM after each click"],
+        "correct_answer": "setItems(currentItems => [...currentItems, newItem])",
+        "explanation": "The functional state updater receives the latest state, so queued updates do not overwrite one another."
     }
   ],
   "Node.js": [
@@ -152,6 +173,13 @@
       ],
       "correct_answer": "Holds metadata, scripts, and dependency definitions for the project",
       "explanation": "package.json lists the project packages, version metadata, and npm scripts."
+      },
+      {
+        "id": "node_5",
+        "question": "An Express route awaits a database call that can reject. How should the route ensure the error reaches the app's error handler?",
+        "options": ["Catch the rejection and call next(error)", "Write the error to console and send no response", "Call next() before awaiting the database", "Retry forever inside the route"],
+        "correct_answer": "Catch the rejection and call next(error)",
+        "explanation": "Passing the caught error to next(error) forwards it through Express's error-handling middleware."
     }
   ],
   "Python": [
@@ -192,6 +220,13 @@
       ],
       "correct_answer": "File is automatically closed even if exceptions occur",
       "explanation": "The context manager protocol ensures `__exit__` is called, closing the file cleanly."
+      },
+      {
+        "id": "py_5",
+        "question": "A program must process a multi-gigabyte file one record at a time without loading it all into memory. Which design is most suitable?",
+        "options": ["Yield records from an iterator and process each as it arrives", "Read the whole file into a list first", "Copy every line into a global string", "Open the file once for every record"],
+        "correct_answer": "Yield records from an iterator and process each as it arrives",
+        "explanation": "An iterator or generator streams records lazily, keeping memory use bounded."
     }
   ],
   "SQL": [
@@ -227,6 +262,13 @@
       "options": ["DELETE FROM table;", "DROP TABLE table;", "TRUNCATE TABLE table;", "REMOVE TABLE table;"],
       "correct_answer": "TRUNCATE TABLE table;",
       "explanation": "TRUNCATE removes all rows by deallocating pages, making it faster than row-by-row DELETE."
+      },
+      {
+        "id": "sql_5",
+        "question": "A report must list every customer, including those with no orders, alongside each customer's order count. Which query structure fits?",
+        "options": ["LEFT JOIN orders and COUNT orders.id, grouping by customer", "INNER JOIN orders and COUNT orders.id", "RIGHT JOIN customers and filter out NULL orders", "CROSS JOIN customers and orders"],
+        "correct_answer": "LEFT JOIN orders and COUNT orders.id, grouping by customer",
+        "explanation": "A LEFT JOIN retains customers with no match; counting the nullable order ID gives them a zero count."
     }
   ],
   "Pandas & Data Analysis": [
@@ -267,6 +309,13 @@
       ],
       "correct_answer": "The average sales per unique category",
       "explanation": "It groups rows by 'category' and calculates the mean of the 'sales' column for each group."
+      },
+      {
+        "id": "pandas_5",
+        "question": "A model's evaluation may be inflated because a scaler was fit before splitting the data. What is the correct repair?",
+        "options": ["Split first, fit the scaler only on training data, then transform both sets", "Fit a separate scaler on the complete dataset after evaluation", "Scale only the target column", "Remove the validation set"],
+        "correct_answer": "Split first, fit the scaler only on training data, then transform both sets",
+        "explanation": "Fitting preprocessing on all rows leaks information from held-out data into training."
     }
   ],
   "Machine Learning": [
@@ -302,6 +351,13 @@
       "options": ["Linear Regression", "Random Forest", "K-Means", "Logistic Regression"],
       "correct_answer": "Random Forest",
       "explanation": "Random Forest builds an ensemble of decision trees via bagging (bootstrap aggregation) and random feature selection."
+      },
+      {
+        "id": "ml_5",
+        "question": "A classifier reports near-perfect test performance, but one input column is calculated after the outcome occurs. What should you investigate first?",
+        "options": ["Target leakage; remove outcome-derived features and reevaluate", "Underfitting; increase regularization", "Class imbalance; report accuracy only", "Slow training; use more epochs"],
+        "correct_answer": "Target leakage; remove outcome-derived features and reevaluate",
+        "explanation": "A post-outcome feature exposes the answer to the model and makes evaluation unrealistically optimistic."
     }
   ],
   "Deep Learning": [
@@ -332,6 +388,13 @@
       "options": ["SGD without momentum", "Adam", "Simulated Annealing", "Hill Climbing"],
       "correct_answer": "Adam",
       "explanation": "Adam (Adaptive Moment Estimation) combines the benefits of AdaGrad and RMSProp with first and second moment tracking."
+      },
+      {
+        "id": "dl_5",
+        "question": "Training loss keeps falling while validation loss rises for several epochs. What is the best next step?",
+        "options": ["Restore the best validation checkpoint and add regularization or early stopping", "Train longer without checking validation", "Increase model size immediately", "Use the validation set for gradient updates"],
+        "correct_answer": "Restore the best validation checkpoint and add regularization or early stopping",
+        "explanation": "The widening gap indicates overfitting; early stopping and regularization improve generalization."
     }
   ],
   "Linux & Bash": [
@@ -367,6 +430,13 @@
       "options": ["find", "grep", "sed", "awk"],
       "correct_answer": "grep",
       "explanation": "grep (Global Regular Expression Print) searches text files for matching regular expression patterns."
+      },
+      {
+        "id": "linux_5",
+        "question": "A backup script breaks when a filename contains spaces. How should the script pass each filename to a command?",
+        "options": ["Quote the variable as \"$file\"", "Remove all spaces from every filename", "Use echo $file without quotes", "Split the filename on each space"],
+        "correct_answer": "Quote the variable as \"$file\"",
+        "explanation": "Quoting preserves a filename as one argument and prevents shell word splitting and glob expansion."
     }
   ],
   "Git & CI/CD": [
@@ -402,6 +472,13 @@
       "options": ["git stash", "git revert", "git reset --hard", "git clean"],
       "correct_answer": "git stash",
       "explanation": "`git stash` records the current state of the working directory and index and reverts back to HEAD."
+      },
+      {
+        "id": "git_5",
+        "question": "A CI token was accidentally committed and pushed. What is the safest immediate response?",
+        "options": ["Revoke and rotate the token, then move it to the CI secret store", "Delete the latest commit but leave the token active", "Rename the token variable in the workflow", "Make the repository private and take no further action"],
+        "correct_answer": "Revoke and rotate the token, then move it to the CI secret store",
+        "explanation": "Once exposed, a credential must be considered compromised; history edits do not replace revocation."
     }
   ],
   "Docker": [
@@ -442,6 +519,13 @@
       "options": ["docker run my-app .", "docker build -t my-app .", "docker create -n my-app", "docker image pull my-app ."],
       "correct_answer": "docker build -t my-app .",
       "explanation": "`docker build -t <name> <context>` compiles the Dockerfile into a named tagged image."
+      },
+      {
+        "id": "docker_5",
+        "question": "A production image is huge because compilers and build tools are included. How can the final image be reduced while preserving the built app?",
+        "options": ["Use a multi-stage build and copy only runtime artifacts into the final stage", "Add more RUN layers to the same image", "Store build tools in a named volume", "Disable the image layer cache"],
+        "correct_answer": "Use a multi-stage build and copy only runtime artifacts into the final stage",
+        "explanation": "A multi-stage build keeps build dependencies out of the final runtime image."
     }
   ],
   "Kubernetes": [
@@ -472,6 +556,13 @@
       "options": ["kube-apiserver", "kube-scheduler", "kubelet", "etcd"],
       "correct_answer": "kube-scheduler",
       "explanation": "kube-scheduler evaluates node capacity, affinity, and taints to schedule Pods to cluster nodes."
+      },
+      {
+        "id": "k8s_5",
+        "question": "A healthy application Pod keeps restarting because its liveness probe receives 404 responses. What should you check first?",
+        "options": ["That the probe path and port match a live application endpoint", "That the cluster has more worker nodes", "That the Pod requests more memory", "That the Service uses a different name"],
+        "correct_answer": "That the probe path and port match a live application endpoint",
+        "explanation": "A failing liveness probe restarts the container; its path and port must match the app's health endpoint."
     }
   ]
 }

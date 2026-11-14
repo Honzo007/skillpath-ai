@@ -4,8 +4,11 @@ No sidebar · No demo button · No landing cards · No step bar
 """
 import os
 import json
+import hashlib
+import re
 from pathlib import Path
 from typing import Dict, Any, List
+from urllib.parse import quote_plus
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -22,6 +25,8 @@ ROLES_FILE  = DATA_DIR / "roles.json"
 QUIZZES_FILE = DATA_DIR / "quizzes.json"
 LEARNER_FILE = DATA_DIR / "learner.json"
 EXPL_CACHE_FILE = DATA_DIR / "skill_explanations.json"
+SKILL_CONTENT_FILE = DATA_DIR / "skill_content.json"
+SKILL_QUESTIONS_FILE = DATA_DIR / "skill_questions.json"
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -210,8 +215,18 @@ def humanize_log(log_str: str) -> str:
 
 def reset_progress():
     """Clear all progress so a new goal/profile starts clean."""
-    st.session_state.learner["progress"]     = {"completed": [], "status_map": {}}
+    st.session_state.learner["progress"] = {
+        "completed": [],
+        "status_map": {},
+        "revision_skills": [],
+        "ready_for_quiz": [],
+        "course_agent_log": [],
+    }
+    st.session_state.learner["progress_role"] = st.session_state.learner.get("profile", {}).get("target_role", "")
     st.session_state.learner["quiz_history"] = []
+    for key in list(st.session_state.keys()):
+        if key.startswith("course_"):
+            del st.session_state[key]
 
 
 def get_skill_explanation(skill: str, role: str, roles_data: dict) -> str:
@@ -249,6 +264,165 @@ def get_skill_explanation(skill: str, role: str, roles_data: dict) -> str:
     # Persist to file so it survives page refresh
     save_json(EXPL_CACHE_FILE, cache)
     return explanation
+
+
+SKILL_SUBTOPICS = {
+    "HTML & CSS": ["Semantic page structure", "Links, images, and forms", "Selectors and the cascade", "Box model and spacing", "Flexbox and Grid", "Responsive layouts", "Accessible markup"],
+    "JavaScript": ["Values and variables", "Functions and scope", "Arrays and objects", "Conditions and loops", "DOM selection and updates", "Events and event delegation", "Promises and async/await"],
+    "React": ["Components and JSX", "Props and reusable UI", "State and event handlers", "Rendering lists with keys", "Conditional rendering", "Effects and data loading", "Sharing state between components"],
+    "Node.js": ["The Node.js runtime", "Modules and npm packages", "Asynchronous work and promises", "Reading and writing files", "HTTP servers and routes", "Express middleware", "Error handling for API requests"],
+    "Python": ["Values and variables", "Conditions and loops", "Functions and arguments", "Lists, dictionaries, and sets", "Reading and writing files", "Exceptions and context managers", "Iterators and generators"],
+    "SQL": ["Selecting and filtering rows", "Sorting and limiting results", "Joining related tables", "Grouping and aggregate functions", "Subqueries and common table expressions", "Constraints and data integrity", "Transactions and safe updates"],
+    "Pandas & Data Analysis": ["Loading tabular data", "Selecting rows and columns", "Cleaning missing and duplicate values", "Grouping and summarizing", "Combining datasets", "Exploring distributions and outliers", "Avoiding data leakage in analysis"],
+    "Machine Learning": ["Features, labels, and splits", "Choosing a baseline model", "Training and validation", "Overfitting and generalization", "Metrics for different tasks", "Cross-validation and tuning", "Preventing data leakage"],
+    "Deep Learning": ["Tensors and batches", "Layers and forward passes", "Loss functions and gradients", "Training loops and optimizers", "Convolutional and sequence models", "Regularization and dropout", "Monitoring validation performance"],
+    "Linux & Bash": ["Navigating files and directories", "Reading and editing files", "Pipes and redirection", "Permissions and ownership", "Variables and quoting", "Conditions and loops in scripts", "Handling errors and exit codes"],
+    "Git & CI/CD": ["Working tree and staging", "Commits and branches", "Merging and resolving conflicts", "Remote repositories", "Automated test workflows", "Secrets and environment variables", "Reading pipeline failures"],
+    "Docker": ["Images and containers", "Writing a Dockerfile", "Build context and caching", "Ports and environment settings", "Volumes and persistent data", "Networks and service communication", "Multi-stage builds"],
+    "Kubernetes": ["Pods and containers", "Deployments and desired replicas", "Services and stable networking", "Configuration and secrets", "Readiness and liveness probes", "Scaling and resource requests", "Diagnosing failed workloads"],
+}
+
+VIDEO_SEARCHES = {
+    "HTML & CSS": ["HTML CSS full course for beginners", "responsive web design project tutorial"],
+    "JavaScript": ["JavaScript full course for beginners", "JavaScript DOM project tutorial"],
+    "React": ["React full course for beginners", "React hooks project tutorial"],
+    "Node.js": ["Node.js crash course", "Node.js Express REST API tutorial"],
+    "Python": ["Python full course for beginners", "Python practical project tutorial"],
+    "SQL": ["SQL full course for beginners", "SQL joins and aggregation practice"],
+    "Pandas & Data Analysis": ["Pandas data analysis full course", "Pandas data cleaning project"],
+    "Machine Learning": ["machine learning practical course for beginners", "scikit-learn classification project tutorial"],
+    "Deep Learning": ["deep learning full course for beginners", "PyTorch image classification project tutorial"],
+    "Linux & Bash": ["Linux command line full course for beginners", "Bash scripting practical tutorial"],
+    "Git & CI/CD": ["Git and GitHub full course for beginners", "GitHub Actions CI workflow tutorial"],
+    "Docker": ["Docker full course for beginners", "Docker multi-stage build tutorial"],
+    "Kubernetes": ["Kubernetes full course for beginners", "Kubernetes deployment troubleshooting tutorial"],
+}
+
+
+def course_cache_key(role: str, skill: str) -> str:
+    return f"{role}::{skill}"
+
+
+def get_skill_subtopics(skill: str, role: str) -> List[str]:
+    cache = load_json(SKILL_CONTENT_FILE)
+    key = skill
+    cached = cache.get(key)
+    if isinstance(cached, list) and 5 <= len(cached) <= 8 and all(isinstance(item, str) for item in cached):
+        return cached
+
+    fallback = SKILL_SUBTOPICS.get(skill, [
+        f"Core ideas behind {skill}",
+        f"Common {skill} tools and workflows",
+        f"Using {skill} to solve a practical problem",
+        f"Testing and checking {skill} work",
+        f"Building a small project with {skill}",
+    ])
+    try:
+        from agents.base import BaseAgent
+        prompt = (
+            f"Create 5 to 8 concise plain-English checklist subtopics for learning {skill} "
+            f"for a {role}. Return only a JSON array of strings, with no markdown or extra text."
+        )
+        response = BaseAgent("CourseContent").call_llm(prompt, "")
+        generated = json.loads(response)
+        if isinstance(generated, dict):
+            generated = generated.get("subtopics")
+        if isinstance(generated, list) and 5 <= len(generated) <= 8 and all(
+            isinstance(item, str) and item.strip() for item in generated
+        ):
+            fallback = [item.strip() for item in generated]
+    except Exception:
+        pass
+
+    cache[key] = fallback
+    save_json(SKILL_CONTENT_FILE, cache)
+    return fallback
+
+
+def valid_course_quiz(questions: Any) -> bool:
+    return (
+        isinstance(questions, list)
+        and len(questions) == 5
+        and all(
+            isinstance(question, dict)
+            and isinstance(question.get("question"), str)
+            and isinstance(question.get("options"), list)
+            and len(question["options"]) == 4
+            and all(isinstance(option, str) for option in question["options"])
+            and question.get("correct_answer") in question["options"]
+            and isinstance(question.get("explanation"), str)
+            for question in questions
+        )
+    )
+
+
+def parse_generated_quiz(response: str, skill: str) -> List[dict]:
+    cleaned = response.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.split("\n", 1)[-1].removesuffix("```").strip()
+    payload = json.loads(cleaned)
+    generated = payload.get("questions") if isinstance(payload, dict) else payload
+    if not isinstance(generated, list) or len(generated) != 5:
+        raise ValueError("Expected exactly five questions")
+
+    questions = []
+    for index, item in enumerate(generated):
+        if not isinstance(item, dict):
+            raise ValueError("Question must be an object")
+        options = item.get("options")
+        answer_index = item.get("answer_index")
+        if (
+            not isinstance(item.get("question"), str)
+            or not item["question"].strip()
+            or not isinstance(options, list)
+            or len(options) != 4
+            or not all(isinstance(option, str) and option.strip() for option in options)
+            or isinstance(answer_index, bool)
+            or not isinstance(answer_index, int)
+            or answer_index < 0
+            or answer_index >= 4
+            or not isinstance(item.get("explanation"), str)
+            or not item["explanation"].strip()
+        ):
+            raise ValueError("Question has an invalid shape")
+        questions.append({
+            "id": f"course_{index + 1}",
+            "question": item["question"].strip(),
+            "options": options,
+            "correct_answer": options[answer_index],
+            "explanation": item["explanation"].strip(),
+        })
+    if not valid_course_quiz(questions):
+        raise ValueError(f"Invalid generated quiz for {skill}")
+    return questions
+
+
+def get_skill_quiz(skill: str, role: str) -> List[dict]:
+    cache = load_json(SKILL_QUESTIONS_FILE)
+    key = skill
+    cached = cache.get(key)
+    if valid_course_quiz(cached):
+        return cached
+
+    questions = None
+    try:
+        from agents.base import BaseAgent
+        prompt = (
+            f"Write exactly five challenging scenario-based multiple-choice questions about {skill} for a learner "
+            f"preparing for {role}. Each must test applying concepts, not definitions. Use four plausible options, "
+            f"one correct answer, and a short explanation. Return strict JSON only in this shape: "
+            f"{{\"questions\":[{{\"question\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],"
+            f"\"answer_index\":0,\"explanation\":\"...\"}}]}}."
+        )
+        response = BaseAgent("CourseQuiz").call_llm(prompt, "")
+        questions = parse_generated_quiz(response, skill)
+    except Exception:
+        fallback = quizzes_data.get(skill, [])
+        questions = fallback if valid_course_quiz(fallback) else []
+
+    cache[key] = questions
+    save_json(SKILL_QUESTIONS_FILE, cache)
+    return questions
 
 
 def run_new_profile(learner: dict) -> dict:
@@ -409,6 +583,546 @@ def show_details_form():
             st.rerun()
 
 
+def show_course_tab():
+    learner = st.session_state.learner
+    profile = learner.get("profile", {})
+    role = profile.get("target_role", "")
+    progress = learner.get("progress", {})
+    if not isinstance(progress, dict) or learner.get("progress_role") != role:
+        progress = {
+            "completed": [],
+            "status_map": {},
+            "revision_skills": [],
+            "ready_for_quiz": [],
+            "course_agent_log": [],
+        }
+        learner["progress"] = progress
+        learner["progress_role"] = role
+        save_learner_data(learner)
+
+    analysis = st.session_state.analysis_result
+    missing_skills = analysis.get("career_match", {}).get("missing_skills", [])
+    plan = orchestrator.curriculum_planner.run(
+        missing_skills=missing_skills,
+        target_role=role,
+        roles_data=roles_data,
+        existing_progress=progress,
+    )
+    roadmap = plan.get("roadmap", [])
+    skills = [step for step in roadmap if not step.get("is_revision")]
+    completed = set(progress.get("completed", []))
+    ready_for_quiz = set(progress.get("ready_for_quiz", []))
+    mastered_count = sum(step["skill"] in completed for step in skills)
+
+    st.markdown("## Course")
+    st.caption("Work through your skills in order. Learn, watch, practice, then take the quiz.")
+    st.markdown(f"**{mastered_count} of {len(skills)} skills mastered**")
+    st.progress(mastered_count / len(skills) if skills else 1.0)
+
+    if not skills:
+        st.success("There are no missing skills in your current learning plan.")
+
+    revision_skills = {
+        step["skill"] for step in roadmap if step.get("is_revision")
+    }
+
+    for step in skills:
+        skill = step["skill"]
+        status = step.get("status", "locked")
+        card_key = quote_plus(course_cache_key(role, skill), safe="")
+        result_key = f"course_quiz_result_{card_key}"
+        skill_info = roles_data.get(role, {}).get("skills", {}).get(skill, {})
+
+        with st.expander(
+            f"{'🔒 ' if status == 'locked' else ''}{skill}",
+            expanded=status == "in_progress" or bool(st.session_state.get(result_key)),
+        ):
+            if status == "locked":
+                st.info("Finish the previous skill first.")
+                continue
+
+            title_suffix = " · Mastered" if status == "done" else ""
+            if title_suffix:
+                st.markdown(f"**{title_suffix.strip(' ·')}**")
+            if skill in revision_skills:
+                st.info("Revision step added. Review the material and retake the quiz.")
+
+            st.markdown("**WHAT YOU'LL LEARN**")
+            for topic_index, topic in enumerate(get_skill_subtopics(skill, role)):
+                st.checkbox(topic, key=f"course_topic_{card_key}_{topic_index}")
+
+            st.markdown("**WHERE TO LEARN**")
+            for resource in skill_info.get("resources", [])[:3]:
+                st.markdown(f"- [{resource['title']}]({resource['url']})")
+
+            st.markdown("**WATCH**")
+            queries = VIDEO_SEARCHES.get(skill, [
+                f"{skill} full course for beginners",
+                f"{skill} practical tutorial",
+            ])
+            for query in queries[:3]:
+                search_url = f"https://www.youtube.com/results?search_query={quote_plus(query)}"
+                st.markdown(f"- [Watch: {query}]({search_url})")
+
+            if status != "done" and skill not in ready_for_quiz:
+                if st.button("Mark as done", key=f"course_mark_done_{card_key}"):
+                    ready_for_quiz.add(skill)
+                    progress["ready_for_quiz"] = sorted(ready_for_quiz)
+                    learner["progress"] = progress
+                    save_learner_data(learner)
+                    st.rerun()
+
+            if skill in ready_for_quiz or status == "done":
+                questions = get_skill_quiz(skill, role)
+                if not questions:
+                    st.warning("A quiz is not available for this skill yet.")
+                    continue
+
+                st.markdown("**SKILL QUIZ**")
+                attempt_key = f"course_quiz_attempt_{card_key}"
+                result = st.session_state.get(result_key)
+
+                if result is None:
+                    attempt = st.session_state.get(attempt_key, 0)
+                    with st.form(f"course_quiz_form_{card_key}_{attempt}"):
+                        selections = []
+                        for question_index, question in enumerate(questions):
+                            selections.append(
+                                st.radio(
+                                    f"{question_index + 1}. {question['question']}",
+                                    question["options"],
+                                    index=None,
+                                    key=f"course_answer_{card_key}_{attempt}_{question_index}",
+                                )
+                            )
+                        submit_quiz = st.form_submit_button("Submit", type="primary")
+
+                    if submit_quiz:
+                        if any(answer is None for answer in selections):
+                            st.warning("Answer all five questions before submitting.")
+                        else:
+                            answers = {
+                                question["id"]: answer
+                                for question, answer in zip(questions, selections)
+                            }
+                            course_quizzes = dict(quizzes_data)
+                            course_quizzes[skill] = questions
+                            event_result = orchestrator.handle_event(
+                                event_type="quiz_result",
+                                payload={
+                                    "skill": skill,
+                                    "user_answers": answers,
+                                    "profile": profile,
+                                    "progress": progress,
+                                },
+                                roles_data=roles_data,
+                                quizzes_data=course_quizzes,
+                            )
+                            assessment = event_result.get("assessment", {})
+                            mentor_message = event_result.get("mentor", {}).get("message", "")
+                            correct_count = assessment.get("correct_count", 0)
+                            total_questions = assessment.get("total_questions", 0)
+                            passed = assessment.get("score", 0) >= 60
+                            if passed:
+                                summary = (
+                                    f"Assessment Agent scored {skill} {correct_count}/{total_questions}. "
+                                    "Curriculum Planner marked the skill mastered and unlocked the next skill. "
+                                )
+                            else:
+                                summary = (
+                                    f"Assessment Agent scored {skill} {correct_count}/{total_questions}. "
+                                    "Curriculum Planner added a revision step. "
+                                )
+                            if mentor_message:
+                                summary += f"Mentor: {mentor_message}"
+
+                            updated_progress = event_result.get("updated_progress", {})
+                            updated_progress["ready_for_quiz"] = sorted(ready_for_quiz)
+                            course_agent_log = list(progress.get("course_agent_log", []))
+                            course_agent_log.insert(0, summary)
+                            updated_progress["course_agent_log"] = course_agent_log[:20]
+                            learner["progress"] = updated_progress
+                            learner["progress_role"] = role
+                            for line in reversed(event_result.get("logs", [])):
+                                add_agent_log(line)
+                            save_learner_data(learner)
+                            st.session_state[result_key] = event_result
+                            st.rerun()
+                else:
+                    assessment = result.get("assessment", {})
+                    correct_count = assessment.get("correct_count", 0)
+                    total_questions = assessment.get("total_questions", 0)
+                    passed = assessment.get("score", 0) >= 60
+                    st.markdown(f"### Score: {correct_count}/{total_questions}")
+                    for item in assessment.get("breakdown", []):
+                        label = "Right" if item.get("is_correct") else "Wrong"
+                        st.markdown(f"**{label}: {item.get('question', '')}**")
+                        st.write(f"Your answer: {item.get('user_answer', '')}")
+                        st.write(f"Correct answer: {item.get('correct_answer', '')}")
+                        st.caption(item.get("explanation", ""))
+
+                    if passed:
+                        st.success("Skill mastered. The next skill is now unlocked.")
+                    else:
+                        st.info(result.get("mentor", {}).get("message", "Review the material and try again."))
+                        if st.button("Retake quiz", key=f"course_retake_{card_key}"):
+                            st.session_state[attempt_key] = st.session_state.get(attempt_key, 0) + 1
+                            st.session_state[result_key] = None
+                            st.rerun()
+
+    with st.expander("See how your AI team worked", expanded=False):
+        agent_lines = progress.get("course_agent_log", [])
+        if agent_lines:
+            for line in agent_lines[:10]:
+                st.write(line)
+        else:
+            st.caption("Your assessment activity will appear here.")
+
+
+def get_quiz_attempts(learner: dict) -> Dict[str, List[dict]]:
+    attempts: Dict[str, List[dict]] = {}
+    quiz_history = learner.get("quiz_history", [])
+    if quiz_history:
+        for item in quiz_history:
+            skill = item.get("skill")
+            score = item.get("score", item.get("score_pct"))
+            correct = item.get("correct_count")
+            total = item.get("total_questions")
+            if score is None and total:
+                score = (float(correct or 0) / total) * 100
+            if skill and score is not None:
+                score = float(score)
+                if 0 <= score <= 1:
+                    score *= 100
+                attempts.setdefault(skill, []).append({
+                    "score": round(score, 1),
+                    "correct_count": correct,
+                    "total_questions": total,
+                })
+        return attempts
+
+    assessment_pattern = re.compile(
+        r"Assessment: evaluated (.+?) quiz -> (\d+)/(\d+) correct \(([\d.]+)%\)"
+    )
+    for line in reversed(learner.get("activity_log", [])):
+        if "Orchestrator: Target role switched" in line or (
+            "Mentor: delivered personalized guidance for event 'new_profile'" in line
+        ):
+            attempts = {}
+        if "Mentor: delivered personalized guidance for event 'goal_change'" in line:
+            attempts = {}
+        match = assessment_pattern.search(line)
+        if match:
+            skill, correct, total, score = match.groups()
+            attempts.setdefault(skill, []).append({
+                "score": float(score),
+                "correct_count": int(correct),
+                "total_questions": int(total),
+            })
+    return attempts
+
+
+def find_plan_change_note(activity_log: List[str], target_role: str) -> str:
+    for line in activity_log:
+        role_change = re.search(r"Target role switched from '(.+?)' to '(.+?)'", line)
+        if role_change:
+            old_role, new_role = role_change.groups()
+            if new_role == target_role:
+                return f"Your goal changed from {old_role} to {new_role}, so your skill plan was rebuilt for {new_role}."
+            break
+
+        revision = re.search(r"Score ([\d.]+)% on '(.+?)' < 60%", line)
+        if revision:
+            score, skill = revision.groups()
+            return f"Your {skill} quiz score was {score}%, so a revision step was added before moving on."
+
+        mastered = re.search(r"Mastered '(.+?)' \(score ([\d.]+)%\)", line)
+        if mastered:
+            skill, score = mastered.groups()
+            return f"You scored {score}% on {skill}, so it was marked mastered and the next step unlocked."
+
+        if "Mentor: delivered personalized guidance for event 'new_profile'" in line:
+            break
+    return ""
+
+
+def build_mentor_summary(learner: dict, analysis: dict) -> dict:
+    profile = learner.get("profile", {})
+    role = profile.get("target_role", "")
+    role_skills = list(roles_data.get(role, {}).get("skills", {}).keys())
+    progress = learner.get("progress", {})
+    completed = set(progress.get("completed", []))
+    status_map = progress.get("status_map", {})
+    ready_for_quiz = set(progress.get("ready_for_quiz", []))
+    career_match = analysis.get("career_match", {})
+    matched = set(career_match.get("matched_skills", []))
+    missing = set(career_match.get("missing_skills", []))
+    if not matched and profile.get("skills"):
+        matched.update(skill for skill in profile["skills"] if skill in role_skills)
+
+    mastered = [skill for skill in role_skills if skill in matched or skill in completed]
+    missing_skills = [
+        skill for skill in role_skills
+        if (skill in missing or skill not in matched) and skill not in completed
+    ]
+    quiz_attempts = get_quiz_attempts(learner)
+    latest_scores = {
+        skill: history[-1]["score"]
+        for skill, history in quiz_attempts.items()
+        if history
+    }
+    weak_skills = [
+        skill for skill in role_skills
+        if latest_scores.get(skill, 100) < 60
+    ]
+    in_progress = [
+        skill for skill in role_skills
+        if skill not in mastered and (
+            status_map.get(skill) == "in_progress"
+            or skill in ready_for_quiz
+            or latest_scores.get(skill, 100) < 60
+        )
+    ]
+    not_started = [
+        skill for skill in role_skills
+        if skill not in mastered and skill not in in_progress
+    ]
+
+    weak_next = next((skill for skill in role_skills if skill in weak_skills), None)
+    if weak_next:
+        next_step = f"Retake your {weak_next} quiz ({latest_scores[weak_next]:g}%)"
+    elif in_progress:
+        next_step = f"Continue {in_progress[0]} in the Course tab"
+    elif not_started:
+        next_step = f"Start {not_started[0]} in the Course tab"
+    else:
+        next_step = f"Practice an interview question for {role}"
+
+    total_skills = len(role_skills)
+    average_quiz_score = (
+        round(sum(latest_scores.values()) / len(latest_scores), 1)
+        if latest_scores else None
+    )
+    readiness_value = career_match.get("readiness_score")
+    readiness = (
+        round(float(readiness_value))
+        if readiness_value is not None
+        else round(len(mastered) / total_skills * 100) if total_skills else 0
+    )
+    rating = "Getting started" if readiness < 40 else "On track" if readiness < 75 else "Strong progress"
+    activity_log = learner.get("activity_log", [])
+    weakest_skill = min(
+        (skill for skill in role_skills if skill in latest_scores),
+        key=lambda skill: latest_scores[skill],
+        default=None,
+    )
+
+    return {
+        "name": profile.get("name", "Learner"),
+        "target_role": role,
+        "readiness": readiness,
+        "overall_rating": rating,
+        "mastered_count": len(mastered),
+        "total_skills": total_skills,
+        "average_quiz_score": average_quiz_score,
+        "skill_status_counts": {
+            "Mastered": len(mastered),
+            "In progress": len(in_progress),
+            "Not started": len(not_started),
+        },
+        "matched_skills": [skill for skill in role_skills if skill in matched],
+        "mastered_skills": mastered,
+        "missing_skills": missing_skills,
+        "weak_quiz_skills": weak_skills,
+        "latest_quiz_scores": [
+            {"skill": skill, "score": latest_scores[skill]}
+            for skill in role_skills if skill in latest_scores
+        ],
+        "weakest_skill": weakest_skill,
+        "quiz_attempt_counts": {
+            skill: len(quiz_attempts.get(skill, [])) for skill in role_skills
+        },
+        "quiz_table": [
+            {
+                "Skill": skill,
+                "Latest score": f"{latest_scores[skill]}%" if skill in latest_scores else "Not taken",
+                "Attempts": len(quiz_attempts.get(skill, [])),
+            }
+            for skill in role_skills
+        ],
+        "next_step": next_step,
+        "plan_change_note": find_plan_change_note(activity_log, role),
+    }
+
+
+def fallback_mentor_note(summary: dict) -> str:
+    name = summary["name"]
+    role = summary["target_role"]
+    latest = summary["latest_quiz_scores"]
+    if latest:
+        weakest = min(latest, key=lambda item: item["score"])
+        next_sentence = (
+            f"Your weakest latest quiz is {weakest['skill']} at {weakest['score']}%; "
+            f"your next step is to {summary['next_step'][0].lower() + summary['next_step'][1:]}."
+        )
+    else:
+        next_sentence = f"Your next step is to {summary['next_step'][0].lower() + summary['next_step'][1:]}."
+    return (
+        f"{name}, your target role is {role}, and you are {summary['overall_rating'].lower()} "
+        f"at {summary['readiness']}% readiness. {next_sentence}"
+    )
+
+
+def log_mentor_action(agent_result: dict, plain_sentence: str):
+    learner = st.session_state.learner
+    add_agent_log(agent_result.get("log_message", "Mentor: completed a learning task"))
+    add_agent_log(f"Mentor Agent: {plain_sentence}")
+    mentor_lines = st.session_state.setdefault("mentor_agent_log", [])
+    mentor_lines.insert(0, plain_sentence)
+    st.session_state.mentor_agent_log = mentor_lines[:20]
+    save_learner_data(learner)
+
+
+def show_mentor_tab():
+    learner = st.session_state.learner
+    summary = build_mentor_summary(learner, st.session_state.analysis_result)
+
+    role = summary["target_role"] or "Target role not set"
+    st.markdown("## Mentor")
+    st.caption("Your progress at a glance.")
+    st.write(f"Target role: **{role}**")
+    refresh_note = st.button("Refresh analysis", key="mentor_refresh_analysis")
+
+    fingerprint = hashlib.sha256(
+        json.dumps(summary, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+    report_cache = st.session_state.setdefault("mentor_report_cache", {})
+    if refresh_note or fingerprint not in report_cache:
+        report_result = orchestrator.mentor.run(
+            event_type="mentor_report",
+            context={
+                "summary": summary,
+                "fallback_message": fallback_mentor_note(summary),
+            },
+        )
+        report_cache[fingerprint] = {
+            "message": report_result["message"],
+            "offline": report_result.get("offline", False),
+        }
+        st.session_state.mentor_report_cache = report_cache
+        quiz_count = sum(summary["quiz_attempt_counts"].values())
+        log_mentor_action(
+            report_result,
+            f"Reviewed {quiz_count} quiz attempts and recommended: {summary['next_step']}.",
+        )
+    report_note = report_cache[fingerprint]
+
+    overview = st.columns(4)
+    card_values = [
+        ("Readiness", f"{summary['readiness']}%"),
+        ("Skills mastered", f"{summary['mastered_count']} of {summary['total_skills']}"),
+        ("Average quiz score", f"{summary['average_quiz_score']}%" if summary["average_quiz_score"] is not None else "—"),
+        ("Overall rating", summary["overall_rating"]),
+    ]
+    for column, (label, value) in zip(overview, card_values):
+        with column:
+            with st.container(border=True):
+                st.caption(label)
+                st.markdown(f"### {value}")
+
+    import altair as alt
+
+    readiness_col, status_col = st.columns(2)
+    with readiness_col:
+        st.markdown("#### Readiness")
+        st.progress(summary["readiness"] / 100)
+        st.caption(f"You are {summary['readiness']}% ready for your target role.")
+
+    with status_col:
+        st.markdown("#### Skill status")
+        status_data = [
+            {"status": status, "skills": count}
+            for status, count in summary["skill_status_counts"].items()
+        ]
+        status_colors = alt.Scale(
+            domain=["Mastered", "In progress", "Not started"],
+            range=["#15803d", "#2563eb", "#cbd5e1"],
+        )
+        status_chart = (
+            alt.Chart(alt.Data(values=status_data))
+            .mark_bar(cornerRadiusEnd=4)
+            .encode(
+                x=alt.X("status:N", title=None, sort=["Mastered", "In progress", "Not started"]),
+                y=alt.Y("skills:Q", title="Skills", scale=alt.Scale(domain=[0, max(1, summary['total_skills'])])),
+                color=alt.Color("status:N", scale=status_colors, legend=None),
+                tooltip=[alt.Tooltip("status:N", title="Status"), alt.Tooltip("skills:Q", title="Skills")],
+            )
+            .properties(height=170)
+        )
+        st.altair_chart(status_chart, use_container_width=True)
+        st.caption("Each bar counts skills by their current learning status.")
+
+    quiz_scores = summary["latest_quiz_scores"]
+    st.markdown("#### Quiz scores by skill")
+    if quiz_scores:
+        score_data = [{"skill": item["skill"], "score": item["score"]} for item in quiz_scores]
+        score_chart = alt.Chart(alt.Data(values=score_data)).mark_bar(size=18).encode(
+            y=alt.Y("skill:N", title=None, sort=alt.SortField(field="score", order="ascending")),
+            x=alt.X("score:Q", title="Latest score (%)", scale=alt.Scale(domain=[0, 100])),
+            color=alt.condition(
+                alt.datum.score >= 60,
+                alt.value("#15803d"),
+                alt.value("#ea580c"),
+            ),
+            tooltip=[alt.Tooltip("skill:N", title="Skill"), alt.Tooltip("score:Q", title="Latest score", format=".1f")],
+        )
+        pass_mark = alt.Chart(alt.Data(values=[{"score": 60}])).mark_rule(
+            color="#2563eb", strokeDash=[5, 4], size=2
+        ).encode(x="score:Q")
+        quiz_chart = (score_chart + pass_mark).properties(
+            height=max(120, 32 * len(score_data)),
+            title=alt.TitleParams(text="Latest quiz score by skill", subtitle="Vertical line: Pass mark (60%)"),
+        )
+        st.altair_chart(quiz_chart, use_container_width=True)
+        st.caption("Each bar shows the latest attempt; orange is below the 60% pass mark.")
+    else:
+        st.info("No quiz scores yet. Your latest scores will appear here after your first Course quiz.")
+        st.caption("The score chart appears after your first quiz attempt.")
+
+    with st.container(border=True):
+        st.markdown("#### Your next step")
+        st.write(summary["next_step"])
+
+    if summary["plan_change_note"]:
+        st.markdown(f"**What changed and why:** {summary['plan_change_note']}")
+
+    st.markdown("### Mentor's note")
+    st.write(report_note["message"])
+    if report_note["offline"]:
+        st.caption("Mentor is in offline mode")
+
+    with st.expander("View quiz details", expanded=False):
+        if quiz_scores:
+            st.dataframe(summary["quiz_table"], hide_index=True, use_container_width=True)
+        else:
+            st.caption("No quiz attempts to show yet.")
+
+    with st.expander("See how your AI team worked", expanded=False):
+        mentor_lines = st.session_state.get("mentor_agent_log", [])
+        if not mentor_lines:
+            mentor_lines = [
+                line.removeprefix("Mentor Agent: ")
+                for line in learner.get("activity_log", [])
+                if line.startswith("Mentor Agent: ")
+            ]
+        if mentor_lines:
+            for line in mentor_lines[:10]:
+                sentence = line[0].lower() + line[1:] if line else "completed a task."
+                st.write(f"Mentor Agent {sentence}")
+        else:
+            st.caption("Mentor report activity will appear here.")
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  MAIN APP  (header + three tabs)
 # ══════════════════════════════════════════════════════════════════════════════
@@ -530,16 +1244,16 @@ def show_main_app():
                 st.caption("No agent activity recorded yet.")
 
     # ──────────────────────────────────────────────────────────────────────────
-    # TAB 2 · COURSE  (Phase B placeholder)
+    # TAB 2 · COURSE  (Phase B1)
     # ──────────────────────────────────────────────────────────────────────────
     with tab_course:
-        st.info("Your personalised course plan is coming in the next phase.")
+        show_course_tab()
 
     # ──────────────────────────────────────────────────────────────────────────
     # TAB 3 · MENTOR  (Phase B placeholder)
     # ──────────────────────────────────────────────────────────────────────────
     with tab_mentor:
-        st.info("Your AI mentor chat is coming in the next phase.")
+        show_mentor_tab()
 
 
 # ══════════════════════════════════════════════════════════════════════════════

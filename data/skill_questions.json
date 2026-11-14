@@ -1,0 +1,188 @@
+{
+  "HTML & CSS": [
+    {
+      "id": "html_1",
+      "question": "Which HTML5 semantic tag is best suited to encapsulate content that represents an independent, self-contained piece of work (like a blog post)?",
+      "options": [
+        "<div>",
+        "<section>",
+        "<article>",
+        "<aside>"
+      ],
+      "correct_answer": "<article>",
+      "explanation": "<article> specifies independent, self-contained content that could be distributed separately."
+    },
+    {
+      "id": "html_2",
+      "question": "In the CSS Box Model, which layer is immediately between the padding and the margin?",
+      "options": [
+        "Content",
+        "Border",
+        "Outline",
+        "Box-sizing"
+      ],
+      "correct_answer": "Border",
+      "explanation": "From inside out: content -> padding -> border -> margin."
+    },
+    {
+      "id": "html_3",
+      "question": "Which CSS display property creates a flex container with flexible layout abilities along main and cross axes?",
+      "options": [
+        "display: block",
+        "display: grid",
+        "display: flex",
+        "display: inline-block"
+      ],
+      "correct_answer": "display: flex",
+      "explanation": "display: flex turns an element into a flex container aligned along main and cross axes."
+    },
+    {
+      "id": "html_4",
+      "question": "What is the purpose of the CSS property 'box-sizing: border-box'?",
+      "options": [
+        "Adds extra borders to all elements",
+        "Includes padding and border in the element's total width and height",
+        "Removes external margins from the box",
+        "Prevents the box from shrinking"
+      ],
+      "correct_answer": "Includes padding and border in the element's total width and height",
+      "explanation": "With border-box, the width and height properties include content, padding, and border."
+    },
+    {
+      "id": "html_5",
+      "question": "A fixed-width card overflows its layout after padding is added. Which change keeps the padding inside the declared width?",
+      "options": [
+        "Set box-sizing: border-box",
+        "Set margin: 0",
+        "Use display: inline",
+        "Set position: relative"
+      ],
+      "correct_answer": "Set box-sizing: border-box",
+      "explanation": "With border-box, padding and borders are included in the declared width, preventing the card from growing beyond it."
+    }
+  ],
+  "SQL": [
+    {
+      "id": "sql_1",
+      "question": "Which SQL clause filters records AFTER aggregation functions (like COUNT, SUM) are computed?",
+      "options": [
+        "WHERE",
+        "HAVING",
+        "GROUP BY",
+        "ORDER BY"
+      ],
+      "correct_answer": "HAVING",
+      "explanation": "WHERE filters individual rows prior to grouping, while HAVING filters aggregated group results."
+    },
+    {
+      "id": "sql_2",
+      "question": "Which JOIN returns all rows from the left table and matched records from the right table?",
+      "options": [
+        "INNER JOIN",
+        "LEFT JOIN",
+        "RIGHT JOIN",
+        "CROSS JOIN"
+      ],
+      "correct_answer": "LEFT JOIN",
+      "explanation": "LEFT JOIN preserves all rows from the left table, filling NULLs where right table matches are absent."
+    },
+    {
+      "id": "sql_3",
+      "question": "What does a UNIQUE constraint enforce in a relational table?",
+      "options": [
+        "All values in that column must be distinct across rows",
+        "The column cannot contain NULL values under any condition",
+        "The column becomes an auto-incrementing integer",
+        "The table can only have one index"
+      ],
+      "correct_answer": "All values in that column must be distinct across rows",
+      "explanation": "A UNIQUE constraint ensures no duplicate values exist in the specified column."
+    },
+    {
+      "id": "sql_4",
+      "question": "Which command removes all rows from a table quickly without logging individual row deletions?",
+      "options": [
+        "DELETE FROM table;",
+        "DROP TABLE table;",
+        "TRUNCATE TABLE table;",
+        "REMOVE TABLE table;"
+      ],
+      "correct_answer": "TRUNCATE TABLE table;",
+      "explanation": "TRUNCATE removes all rows by deallocating pages, making it faster than row-by-row DELETE."
+    },
+    {
+      "id": "sql_5",
+      "question": "A report must list every customer, including those with no orders, alongside each customer's order count. Which query structure fits?",
+      "options": [
+        "LEFT JOIN orders and COUNT orders.id, grouping by customer",
+        "INNER JOIN orders and COUNT orders.id",
+        "RIGHT JOIN customers and filter out NULL orders",
+        "CROSS JOIN customers and orders"
+      ],
+      "correct_answer": "LEFT JOIN orders and COUNT orders.id, grouping by customer",
+      "explanation": "A LEFT JOIN retains customers with no match; counting the nullable order ID gives them a zero count."
+    }
+  ],
+  "JavaScript": [
+    {
+      "id": "js_1",
+      "question": "What is the key difference between '==' and '===' in JavaScript?",
+      "options": [
+        "'==' performs type coercion before comparison, whereas '===' strictly compares both value and type",
+        "'===' allows type coercion and '==' does not",
+        "'===' is used exclusively for object comparisons",
+        "There is no difference; they are interchangeable"
+      ],
+      "correct_answer": "'==' performs type coercion before comparison, whereas '===' strictly compares both value and type",
+      "explanation": "Triple equals (strict equality) prevents automatic type coercion and checks both type and value."
+    },
+    {
+      "id": "js_2",
+      "question": "Which method returns a new array with all elements that pass the test implemented by the provided callback function?",
+      "options": [
+        "map()",
+        "filter()",
+        "reduce()",
+        "forEach()"
+      ],
+      "correct_answer": "filter()",
+      "explanation": "Array.prototype.filter() creates a shallow copy of a portion of a given array, filtered down to just the elements that pass the test."
+    },
+    {
+      "id": "js_3",
+      "question": "What will `console.log(typeof NaN)` print in modern JavaScript?",
+      "options": [
+        "'undefined'",
+        "'null'",
+        "'number'",
+        "'NaN'"
+      ],
+      "correct_answer": "'number'",
+      "explanation": "In JavaScript, NaN (Not-a-Number) is formally of primitive numeric type."
+    },
+    {
+      "id": "js_4",
+      "question": "Which mechanism allows asynchronous operations to be written like synchronous code using async/await?",
+      "options": [
+        "Generators only",
+        "Promises",
+        "Callbacks only",
+        "Web Workers"
+      ],
+      "correct_answer": "Promises",
+      "explanation": "async/await is syntactic sugar built directly on top of JavaScript Promises."
+    },
+    {
+      "id": "js_5",
+      "question": "A list receives new rows after each fetch, and each row has a delete button. Where should one click listener be attached so newly added buttons also work?",
+      "options": [
+        "Attach a delegated listener to the list and inspect event.target",
+        "Attach a listener to each button only when the page loads",
+        "Poll every button with setInterval",
+        "Add an inline handler only to the first row"
+      ],
+      "correct_answer": "Attach a delegated listener to the list and inspect event.target",
+      "explanation": "Event delegation lets a parent handle bubbled clicks from both existing and future child buttons."
+    }
+  ]
+}

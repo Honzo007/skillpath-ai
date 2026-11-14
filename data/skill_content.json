@@ -1,0 +1,29 @@
+{
+  "HTML & CSS": [
+    "Semantic page structure",
+    "Links, images, and forms",
+    "Selectors and the cascade",
+    "Box model and spacing",
+    "Flexbox and Grid",
+    "Responsive layouts",
+    "Accessible markup"
+  ],
+  "SQL": [
+    "Selecting and filtering rows",
+    "Sorting and limiting results",
+    "Joining related tables",
+    "Grouping and aggregate functions",
+    "Subqueries and common table expressions",
+    "Constraints and data integrity",
+    "Transactions and safe updates"
+  ],
+  "JavaScript": [
+    "Values and variables",
+    "Functions and scope",
+    "Arrays and objects",
+    "Conditions and loops",
+    "DOM selection and updates",
+    "Events and event delegation",
+    "Promises and async/await"
+  ]
+}

@@ -35,28 +35,30 @@ class CurriculumPlanner(BaseAgent):
 
         roadmap_steps = []
         completed_skills = set(existing_progress.get("completed", []))
+        revision_skills = set(existing_progress.get("revision_skills", []))
 
         for idx, item in enumerate(gap_items):
             skill = item["skill"]
             prereqs = item["prerequisites"]
             # A step is unlocked if all its prerequisites are either not in missing_skills or already completed
             unmet_prereqs = [p for p in prereqs if p in missing_skills and p not in completed_skills]
+            previous_skills_done = all(
+                earlier["skill"] in completed_skills for earlier in gap_items[:idx]
+            )
             
             if skill in completed_skills:
                 status = "done"
-            elif not unmet_prereqs and (idx == 0 or all(g["skill"] in completed_skills for g in gap_items[:idx])):
-                status = "in_progress"
-            elif not unmet_prereqs:
+            elif not unmet_prereqs and previous_skills_done:
                 status = "in_progress"
             else:
                 status = "locked"
 
             # Check if existing status takes precedence
-            if skill in existing_progress.get("status_map", {}):
+            if skill in completed_skills and skill in existing_progress.get("status_map", {}):
                 status = existing_progress["status_map"][skill]
 
             roadmap_steps.append({
-                "step_number": idx + 1,
+                "step_number": len(roadmap_steps) + 1,
                 "skill": skill,
                 "status": status,
                 "difficulty": item["difficulty"],
@@ -64,6 +66,17 @@ class CurriculumPlanner(BaseAgent):
                 "resources": item["resources"],
                 "is_revision": False
             })
+
+            if skill in revision_skills:
+                roadmap_steps.append({
+                    "step_number": len(roadmap_steps) + 1,
+                    "skill": skill,
+                    "status": "in_progress",
+                    "difficulty": item["difficulty"],
+                    "prerequisites": prereqs,
+                    "resources": item["resources"],
+                    "is_revision": True
+                })
 
         log_message = f"{self.name}: structured {len(roadmap_steps)} sequential learning steps for {target_role}"
 
