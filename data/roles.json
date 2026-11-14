@@ -1,0 +1,392 @@
+{
+  "Full Stack Developer": {
+    "description": "Builds end-to-end web applications across frontend and backend systems.",
+    "skills": {
+      "HTML & CSS": {
+        "order": 1,
+        "difficulty": "Beginner",
+        "prerequisites": [],
+        "resources": [
+          {
+            "title": "MDN Responsive Web Design Basics",
+            "type": "tutorial",
+            "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content",
+            "estimated_hours": 8
+          },
+          {
+            "title": "freeCodeCamp Responsive Web Design Certification",
+            "type": "course",
+            "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/",
+            "estimated_hours": 15
+          },
+          {
+            "title": "Build a Personal Portfolio Page",
+            "type": "exercise",
+            "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/#build-a-personal-portfolio-webpage-project",
+            "estimated_hours": 4
+          }
+        ]
+      },
+      "JavaScript": {
+        "order": 2,
+        "difficulty": "Intermediate",
+        "prerequisites": ["HTML & CSS"],
+        "resources": [
+          {
+            "title": "MDN JavaScript Basics & DOM",
+            "type": "tutorial",
+            "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting",
+            "estimated_hours": 12
+          },
+          {
+            "title": "The Odin Project: Full Stack JavaScript Basics",
+            "type": "course",
+            "url": "https://www.theodinproject.com/paths/full-stack-javascript",
+            "estimated_hours": 20
+          },
+          {
+            "title": "Interactive DOM Calculator / Todo Project",
+            "type": "exercise",
+            "url": "https://www.theodinproject.com/lessons/node-path-javascript-todo-list",
+            "estimated_hours": 6
+          }
+        ]
+      },
+      "Python": {
+        "order": 3,
+        "difficulty": "Beginner",
+        "prerequisites": [],
+        "resources": [
+          {
+            "title": "Python Official Tutorial",
+            "type": "tutorial",
+            "url": "https://docs.python.org/3/tutorial/",
+            "estimated_hours": 10
+          },
+          {
+            "title": "freeCodeCamp Scientific Computing with Python",
+            "type": "course",
+            "url": "https://www.freecodecamp.org/learn/scientific-computing-with-python/",
+            "estimated_hours": 16
+          },
+          {
+            "title": "Build a CLI Expense Tracker in Python",
+            "type": "exercise",
+            "url": "https://realpython.com/python-cli-tool/",
+            "estimated_hours": 4
+          }
+        ]
+      },
+      "SQL": {
+        "order": 4,
+        "difficulty": "Beginner",
+        "prerequisites": [],
+        "resources": [
+          {
+            "title": "Kaggle Intro to SQL",
+            "type": "course",
+            "url": "https://www.kaggle.com/learn/intro-to-sql",
+            "estimated_hours": 6
+          },
+          {
+            "title": "PostgreSQL Tutorial & Query Basics",
+            "type": "tutorial",
+            "url": "https://www.postgresqltutorial.com/",
+            "estimated_hours": 8
+          },
+          {
+            "title": "SQL Murder Mystery Hands-on Practice",
+            "type": "exercise",
+            "url": "https://mystery.knightlab.com/",
+            "estimated_hours": 3
+          }
+        ]
+      },
+      "React": {
+        "order": 5,
+        "difficulty": "Intermediate",
+        "prerequisites": ["JavaScript", "HTML & CSS"],
+        "resources": [
+          {
+            "title": "React Official Documentation: Quick Start & Hooks",
+            "type": "tutorial",
+            "url": "https://react.dev/learn",
+            "estimated_hours": 12
+          },
+          {
+            "title": "freeCodeCamp Front End Development Libraries (React)",
+            "type": "course",
+            "url": "https://www.freecodecamp.org/learn/front-end-development-libraries/",
+            "estimated_hours": 18
+          },
+          {
+            "title": "Build a Kanban Task Board in React",
+            "type": "exercise",
+            "url": "https://react.dev/learn/tutorial-tic-tac-toe",
+            "estimated_hours": 6
+          }
+        ]
+      },
+      "Node.js": {
+        "order": 6,
+        "difficulty": "Intermediate",
+        "prerequisites": ["JavaScript"],
+        "resources": [
+          {
+            "title": "Node.js Official Getting Started Guide",
+            "type": "tutorial",
+            "url": "https://nodejs.org/en/learn/getting-started/introduction-to-nodejs",
+            "estimated_hours": 8
+          },
+          {
+            "title": "The Odin Project: NodeJS Express APIs",
+            "type": "course",
+            "url": "https://www.theodinproject.com/paths/full-stack-javascript/courses/nodejs",
+            "estimated_hours": 18
+          },
+          {
+            "title": "Build a REST API with Express and PostgreSQL",
+            "type": "exercise",
+            "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs",
+            "estimated_hours": 6
+          }
+        ]
+      }
+    }
+  },
+  "Data Scientist": {
+    "description": "Derives statistical insights, predictive models, and data pipelines from complex datasets.",
+    "skills": {
+      "Python": {
+        "order": 1,
+        "difficulty": "Beginner",
+        "prerequisites": [],
+        "resources": [
+          {
+            "title": "Kaggle Learn Python Course",
+            "type": "course",
+            "url": "https://www.kaggle.com/learn/python",
+            "estimated_hours": 6
+          },
+          {
+            "title": "Official Python Tutorial",
+            "type": "tutorial",
+            "url": "https://docs.python.org/3/tutorial/",
+            "estimated_hours": 8
+          },
+          {
+            "title": "Data Structures Coding Practice",
+            "type": "exercise",
+            "url": "https://www.kaggle.com/learn/python",
+            "estimated_hours": 3
+          }
+        ]
+      },
+      "SQL": {
+        "order": 2,
+        "difficulty": "Beginner",
+        "prerequisites": [],
+        "resources": [
+          {
+            "title": "Kaggle Advanced SQL",
+            "type": "course",
+            "url": "https://www.kaggle.com/learn/advanced-sql",
+            "estimated_hours": 8
+          },
+          {
+            "title": "PostgreSQL Tutorial",
+            "type": "tutorial",
+            "url": "https://www.postgresqltutorial.com/",
+            "estimated_hours": 6
+          },
+          {
+            "title": "Kaggle SQL Practice Queries",
+            "type": "exercise",
+            "url": "https://www.kaggle.com/learn/intro-to-sql",
+            "estimated_hours": 3
+          }
+        ]
+      },
+      "Pandas & Data Analysis": {
+        "order": 3,
+        "difficulty": "Intermediate",
+        "prerequisites": ["Python"],
+        "resources": [
+          {
+            "title": "Kaggle Pandas Micro-Course",
+            "type": "course",
+            "url": "https://www.kaggle.com/learn/pandas",
+            "estimated_hours": 8
+          },
+          {
+            "title": "Pandas Official 10-Minute Guide",
+            "type": "tutorial",
+            "url": "https://pandas.pydata.org/docs/user_guide/10min.html",
+            "estimated_hours": 4
+          },
+          {
+            "title": "Exploratory Data Analysis on Titanic Dataset",
+            "type": "exercise",
+            "url": "https://www.kaggle.com/c/titanic",
+            "estimated_hours": 5
+          }
+        ]
+      },
+      "Machine Learning": {
+        "order": 4,
+        "difficulty": "Intermediate",
+        "prerequisites": ["Python", "Pandas & Data Analysis"],
+        "resources": [
+          {
+            "title": "Kaggle Intro to Machine Learning",
+            "type": "course",
+            "url": "https://www.kaggle.com/learn/intro-to-machine-learning",
+            "estimated_hours": 10
+          },
+          {
+            "title": "Scikit-Learn Official User Guide",
+            "type": "tutorial",
+            "url": "https://scikit-learn.org/stable/user_guide.html",
+            "estimated_hours": 8
+          },
+          {
+            "title": "House Prices Prediction Competition",
+            "type": "exercise",
+            "url": "https://www.kaggle.com/c/house-prices-advanced-regression-techniques",
+            "estimated_hours": 6
+          }
+        ]
+      },
+      "Deep Learning": {
+        "order": 5,
+        "difficulty": "Advanced",
+        "prerequisites": ["Machine Learning"],
+        "resources": [
+          {
+            "title": "Kaggle Intro to Deep Learning",
+            "type": "course",
+            "url": "https://www.kaggle.com/learn/intro-to-deep-learning",
+            "estimated_hours": 12
+          },
+          {
+            "title": "PyTorch Official 60-Minute Blitz",
+            "type": "tutorial",
+            "url": "https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html",
+            "estimated_hours": 8
+          },
+          {
+            "title": "Image Classifier with PyTorch/TensorFlow",
+            "type": "exercise",
+            "url": "https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html",
+            "estimated_hours": 6
+          }
+        ]
+      }
+    }
+  },
+  "DevOps Engineer": {
+    "description": "Automates deployments, manages cloud infrastructure, and guarantees pipeline reliability.",
+    "skills": {
+      "Linux & Bash": {
+        "order": 1,
+        "difficulty": "Beginner",
+        "prerequisites": [],
+        "resources": [
+          {
+            "title": "Linux Journey: Grasshopper Basics",
+            "type": "tutorial",
+            "url": "https://linuxjourney.com/",
+            "estimated_hours": 8
+          },
+          {
+            "title": "freeCodeCamp Linux Command Line Primer",
+            "type": "course",
+            "url": "https://www.freecodecamp.org/news/the-linux-command-line-handbook/",
+            "estimated_hours": 6
+          },
+          {
+            "title": "Write an Automated Backup Bash Script",
+            "type": "exercise",
+            "url": "https://linuxjourney.com/lesson/bash-scripting",
+            "estimated_hours": 4
+          }
+        ]
+      },
+      "Git & CI/CD": {
+        "order": 2,
+        "difficulty": "Beginner",
+        "prerequisites": [],
+        "resources": [
+          {
+            "title": "Pro Git Book (Official)",
+            "type": "tutorial",
+            "url": "https://git-scm.com/book/en/v2",
+            "estimated_hours": 8
+          },
+          {
+            "title": "GitHub Actions Official Documentation",
+            "type": "course",
+            "url": "https://docs.github.com/en/actions/learn-github-actions",
+            "estimated_hours": 6
+          },
+          {
+            "title": "Set up a Continuous Test Workflow on GitHub",
+            "type": "exercise",
+            "url": "https://docs.github.com/en/actions/quickstart",
+            "estimated_hours": 3
+          }
+        ]
+      },
+      "Docker": {
+        "order": 3,
+        "difficulty": "Intermediate",
+        "prerequisites": ["Linux & Bash"],
+        "resources": [
+          {
+            "title": "Docker Get Started Official Guide",
+            "type": "tutorial",
+            "url": "https://docs.docker.com/get-started/",
+            "estimated_hours": 8
+          },
+          {
+            "title": "freeCodeCamp Docker Containerization Course",
+            "type": "course",
+            "url": "https://www.freecodecamp.org/news/what-is-docker-used-for-a-docker-container-tutorial-for-beginners/",
+            "estimated_hours": 6
+          },
+          {
+            "title": "Multi-stage Container Build for a Web App",
+            "type": "exercise",
+            "url": "https://docs.docker.com/build/building/multi-stage/",
+            "estimated_hours": 4
+          }
+        ]
+      },
+      "Kubernetes": {
+        "order": 4,
+        "difficulty": "Advanced",
+        "prerequisites": ["Docker"],
+        "resources": [
+          {
+            "title": "Kubernetes Official Interactive Basics Tutorial",
+            "type": "tutorial",
+            "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/",
+            "estimated_hours": 10
+          },
+          {
+            "title": "KubeAcademy Containers and Orchestration",
+            "type": "course",
+            "url": "https://kube.academy/",
+            "estimated_hours": 12
+          },
+          {
+            "title": "Deploy a Self-Healing Multi-Replica App on Minikube",
+            "type": "exercise",
+            "url": "https://kubernetes.io/docs/tutorials/stateless-application/guestbook/",
+            "estimated_hours": 6
+          }
+        ]
+      }
+    }
+  }
+}
