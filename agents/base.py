@@ -11,7 +11,7 @@ except ImportError:
 class BaseAgent:
     """Base class for all agents in the platform."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str = "Agent"):
         self.name = name
 
     def run(self, *args, **kwargs):
