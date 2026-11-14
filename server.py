@@ -1,4 +1,4 @@
-"""Standalone Web Server for SkillForge AI on port 8501.
+"""Standalone Web Server for SkillGrowPath AI on port 8501.
 Runs with Python standard library, providing instant zero-delay localhost access to the multi-agent platform.
 """
 import os
@@ -48,7 +48,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SkillForge AI | Adaptive Learning Platform</title>
+  <title>SkillGrowPath AI | Adaptive Learning Platform</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -67,7 +67,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <div class="flex items-center space-x-3 mb-6">
         <span class="text-3xl">🎯</span>
         <div>
-          <h1 class="text-xl font-bold tracking-tight text-white">SkillForge AI</h1>
+          <h1 class="text-xl font-bold tracking-tight text-white">SkillGrowPath AI</h1>
           <p class="text-xs text-cyan-400">Multi-Agent Adaptive Platform</p>
         </div>
       </div>
@@ -117,7 +117,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-500 text-center">
-      SkillForge AI Prototype • PromptWars 2026
+      SkillGrowPath AI Prototype • PromptWars 2026
     </div>
   </aside>
 
@@ -670,7 +670,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
 def run_server(port=8501):
     with socketserver.TCPServer(("", port), RequestHandler) as httpd:
-        print(f"SkillForge AI running at http://localhost:{port}/")
+        print(f"SkillGrowPath AI running at http://localhost:{port}/")
         httpd.serve_forever()
 
 if __name__ == "__main__":

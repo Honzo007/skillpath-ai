@@ -1,4 +1,4 @@
-"""SkillForge AI — Phase A
+"""SkillGrowPath AI — Phase A
 Details form → Main app (Skill Gap tab, Course placeholder, Mentor placeholder)
 No sidebar · No demo button · No landing cards · No step bar
 """
@@ -77,7 +77,7 @@ ALL_SKILLS = sorted(
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="SkillForge",
+    page_title="SkillGrowPath",
     page_icon="🌱",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -471,7 +471,7 @@ def show_details_form():
         st.markdown(
             """
             <div style="text-align:center; margin-bottom:28px;">
-                <div style="font-size:2rem; font-weight:800; color:#0f172a;">SkillForge</div>
+                <div style="font-size:2rem; font-weight:800; color:#0f172a;">SkillGrowPath</div>
                 <div style="font-size:1rem; color:#64748b; margin-top:6px; line-height:1.5;">
                     Tell us about yourself and we'll build your<br>personal learning plan.
                 </div>
@@ -1136,7 +1136,7 @@ def show_main_app():
     h_left, h_right = st.columns([3, 2])
     with h_left:
         st.markdown(
-            '<span style="font-size:1.4rem;font-weight:800;color:#0f172a;">SkillForge</span>',
+            '<span style="font-size:1.4rem;font-weight:800;color:#0f172a;">SkillGrowPath</span>',
             unsafe_allow_html=True,
         )
     with h_right:
